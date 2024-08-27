@@ -3,12 +3,13 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import statsmodels.stats.api as sms
-from statsmodels.stats.outliers_influence import variance_inflation_factor, OLSInfluence
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.compat import lzip
 from statsmodels.stats.diagnostic import het_breuschpagan
 from scipy.stats import jarque_bera, shapiro
 from statsmodels.graphics.gofplots import qqplot
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from statsmodels.stats.outliers_influence import OLSInfluence
 import matplotlib.pyplot as plt
 
 # Function to calculate Variance Inflation Factor (VIF)
@@ -38,10 +39,6 @@ def test_linear_regression_assumptions(df, target_column, independent_columns):
 
     # Fit the model
     model = sm.OLS(y, X).fit()
-
-    # Extract fitted values and residuals
-    fittedvalues = model.fittedvalues
-    residuals = model.resid
 
     # Breusch-Pagan Test for Homoscedasticity
     bp_test = het_breuschpagan(model.resid, model.model.exog)
@@ -90,59 +87,81 @@ def test_linear_regression_assumptions(df, target_column, independent_columns):
     st.header("Variance Inflation Factor (VIF)")
     st.write(vif_data)
 
-    # Linearity
-    st.subheader("Linearity Check")
-    fig, ax = plt.subplots()
-    ax.scatter(fittedvalues, residuals)
-    ax.axhline(y=0, color='r', linestyle='--')
-    ax.set_xlabel('Fitted Values')
-    ax.set_ylabel('Residuals')
-    ax.set_title('Linearity Check')
-    st.pyplot(fig)
+    # Plotting all assumptions in a single figure
+    fittedvalues = model.fittedvalues
+    residuals = model.resid
+
+    # Linearity, Scale-Location, Autocorrelation, QQ Plot, Partial Autocorrelation, and Cook's Distance
+    plt.figure(figsize=(18, 18))
+    
+    # Linearity Check
+    plt.subplot(3, 3, 1)
+    plt.scatter(fittedvalues, residuals)
+    plt.axhline(y=0, color='r', linestyle='--')
+    plt.xlabel('Fitted Values')
+    plt.ylabel('Residuals')
+    plt.title('Linearity Check')
+
+    # Standardized Residuals
+    standardized_residuals = (residuals - np.mean(residuals)) / np.std(residuals)
 
     # Scale-Location Plot
-    standardized_residuals = (residuals - np.mean(residuals)) / np.std(residuals)
-    st.subheader("Scale-Location Plot")
-    fig, ax = plt.subplots()
-    ax.scatter(fittedvalues, np.sqrt(np.abs(standardized_residuals)))
-    ax.axhline(y=0, color='r', linestyle='--')
-    ax.set_xlabel('Fitted Values')
-    ax.set_ylabel('Sqrt(Abs(Standardized Residuals))')
-    ax.set_title('Scale-Location Plot')
-    st.pyplot(fig)
+    plt.subplot(3, 3, 2)
+    plt.scatter(fittedvalues, np.sqrt(np.abs(standardized_residuals)))
+    plt.axhline(y=0, color='r', linestyle='--')
+    plt.xlabel('Fitted Values')
+    plt.ylabel('Sqrt(Abs(Standardized Residuals))')
+    plt.title('Scale-Location Plot')
 
-    # Independence of Residuals
-    st.subheader("Autocorrelation of Residuals")
-    fig, ax = plt.subplots()
-    plot_acf(residuals, lags=40, ax=ax)
-    ax.set_title('Autocorrelation of Residuals')
-    st.pyplot(fig)
+    # Autocorrelation of Residuals
+    plt.subplot(3, 3, 3)
+    plot_acf(residuals, lags=40, ax=plt.gca())
+    plt.title('Autocorrelation of Residuals')
 
-    # Normality of Residuals
-    st.subheader("QQ Plot of Residuals")
-    fig, ax = plt.subplots()
-    qqplot(residuals, line='s', ax=ax)
-    ax.set_title('QQ Plot of Residuals')
-    st.pyplot(fig)
+    # Normality of Residuals (QQ Plot)
+    plt.subplot(3, 3, 4)
+    qqplot(residuals, line='s', ax=plt.gca())
+    plt.title('QQ Plot of Residuals')
 
     # Partial Autocorrelation of Residuals
-    st.subheader("Partial Autocorrelation of Residuals")
-    fig, ax = plt.subplots()
-    plot_pacf(residuals, lags=40, ax=ax)
-    ax.set_title('Partial Autocorrelation of Residuals')
-    st.pyplot(fig)
+    plt.subplot(3, 3, 5)
+    plot_pacf(residuals, lags=40, ax=plt.gca())
+    plt.title('Partial Autocorrelation of Residuals')
 
-    # Influence Plot
-    st.subheader("Cook's Distance")
-    fig, ax = plt.subplots()
+    # Influence Plot (Cook's Distance)
+    plt.subplot(3, 3, 6)
     influence = OLSInfluence(model)
-    ax.scatter(influence.hat_matrix_diag, influence.cooks_distance[0])
-    ax.axhline(y=4 / len(residuals), color='r', linestyle='--')
-    ax.set_xlabel('Leverage')
-    ax.set_ylabel("Cook's Distance")
-    ax.set_title("Cook's Distance")
-    st.pyplot(fig)
+    plt.scatter(influence.hat_matrix_diag, influence.cooks_distance[0])
+    plt.axhline(y=4 / len(residuals), color='r', linestyle='--')
+    plt.xlabel('Leverage')
+    plt.ylabel("Cook's Distance")
+    plt.title("Cook's Distance")
+
+    plt.tight_layout()
+    st.pyplot(plt)
+
+    # Leverage, Standardized Residuals, and Cook's Distance
+    plt.figure(figsize=(18, 6))
     
+    # Leverage vs Residuals
+    plt.subplot(1, 3, 1)
+    plt.scatter(model.get_influence().hat_matrix_diag, residuals)
+    plt.axhline(y=0, color='r', linestyle='--')
+    plt.xlabel('Leverage')
+    plt.ylabel('Residuals')
+    plt.title('Leverage vs Residuals')
+
+    # Leverage vs Standardized Residuals
+    plt.subplot(1, 3, 2)
+    plt.scatter(model.get_influence().hat_matrix_diag, model.get_influence().resid_studentized_internal)
+    plt.axhline(y=0, color='r', linestyle='--')
+    plt.xlabel('Leverage')
+    plt.ylabel('Standardized Residuals')
+    plt.title('Leverage vs Standardized Residuals')
+
+    plt.tight_layout()
+    st.pyplot(plt)
+
 # Streamlit app
 def main():
     st.title("Linear Regression Assumptions Checker")
