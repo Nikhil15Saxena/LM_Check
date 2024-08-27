@@ -68,11 +68,11 @@ def test_linear_regression_assumptions(df, target_column, independent_columns):
     else:
         st.write("**Homoscedasticity assumption is satisfied.**")
     
-    st.write(f"**Jarque-Bera p-value**: {jb_pvalue:.4f}")
-    if jb_pvalue < 0.05:
-        st.write("**Normality assumption is violated.**")
-    else:
-        st.write("**Normality assumption is satisfied.**")
+    # st.write(f"**Jarque-Bera p-value**: {jb_pvalue:.4f}")
+    # if jb_pvalue < 0.05:
+    #     st.write("**Normality assumption is violated.**")
+    # else:
+    #     st.write("**Normality assumption is satisfied.**")
     
     st.write(f"**Shapiro-Wilk p-value**: {sw_pvalue:.4f}")
     if sw_pvalue < 0.05:
@@ -104,7 +104,7 @@ def test_linear_regression_assumptions(df, target_column, independent_columns):
     plt.axhline(y=0, color='r', linestyle='--')
     plt.xlabel('Fitted Values')
     plt.ylabel('Residuals')
-    plt.title('Linearity Check')
+    plt.title('Linearity Check (Residual vs Fitted')
 
     # Standardized Residuals
     standardized_residuals = (residuals - np.mean(residuals)) / np.std(residuals)
@@ -165,6 +165,30 @@ def test_linear_regression_assumptions(df, target_column, independent_columns):
 
     plt.tight_layout()
     st.pyplot(plt)
+
+    def plot_outliers(fittedvalues, residuals):
+    # Calculate mean and standard deviation of residuals
+    mean_residuals = np.mean(residuals)
+    std_residuals = np.std(residuals)
+
+    # Identify outliers: residuals more than two standard deviations from the mean
+    outliers = np.abs(residuals - mean_residuals) > 2 * std_residuals
+
+    # Plot all residuals
+    plt.figure(figsize=(10, 6))
+    plt.scatter(fittedvalues, residuals, label='Residuals', color='blue')
+
+    # Highlight outliers in red
+    plt.scatter(fittedvalues[outliers], residuals[outliers], label='Outliers', color='red')
+
+    plt.axhline(y=mean_residuals + 2 * std_residuals, color='r', linestyle='--')
+    plt.axhline(y=mean_residuals - 2 * std_residuals, color='r', linestyle='--')
+
+    plt.xlabel('Fitted Values')
+    plt.ylabel('Residuals')
+    plt.title('Outliers Highlighted in Red')
+    plt.legend()
+    plt.show()
 
 # Streamlit app
 def main():
