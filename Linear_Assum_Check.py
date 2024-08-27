@@ -222,7 +222,26 @@ def plot_outliers(fittedvalues, residuals):
 # Streamlit app
 def main():
     st.title("Linear Regression Assumptions Checker")
-    
+
+    # Enhanced About section
+    st.sidebar.title("About")
+    st.sidebar.markdown("""
+            ### About this App
+            This app was created by Nikhil Saxena for use by the LMRI team. It allows users to check the assumptions of linear regression to ensure that all necessary conditions for a linear model are met. 
+                
+            **Contact:** 
+            - Email: [Nikhil.Saxena@lilly.com](mailto:Nikhil.Saxena@lilly.com)
+                
+            **Features:**
+            - Upload and filter datasets
+            - Perform factor analysis with customizable settings
+            - Train and evaluate a Random Forest classifier with optional hyperparameter tuning
+            - Visualize results with ROC curves and feature importance
+                
+            ---
+            """, unsafe_allow_html=True)
+
+            
     st.header("Upload your dataset")
     uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
     
