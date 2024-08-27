@@ -104,7 +104,7 @@ def test_linear_regression_assumptions(df, target_column, independent_columns):
     plt.axhline(y=0, color='r', linestyle='--')
     plt.xlabel('Fitted Values')
     plt.ylabel('Residuals')
-    plt.title('Linearity Check (Residual vs Fitted')
+    plt.title('Linearity Check (Residual vs Fitted)')
 
     # Standardized Residuals
     standardized_residuals = (residuals - np.mean(residuals)) / np.std(residuals)
@@ -166,6 +166,9 @@ def test_linear_regression_assumptions(df, target_column, independent_columns):
     plt.tight_layout()
     st.pyplot(plt)
 
+    # Plot outliers
+    plot_outliers(fittedvalues, residuals)
+
 def plot_outliers(fittedvalues, residuals):
     # Calculate mean and standard deviation of residuals
     mean_residuals = np.mean(residuals)
@@ -188,7 +191,7 @@ def plot_outliers(fittedvalues, residuals):
     plt.ylabel('Residuals')
     plt.title('Outliers Highlighted in Red')
     plt.legend()
-    plt.show()
+    st.pyplot(plt)
 
 # Streamlit app
 def main():
