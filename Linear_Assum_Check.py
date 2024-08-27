@@ -3,11 +3,12 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import statsmodels.stats.api as sms
-from statsmodels.stats.outliers_influence import variance_inflation_factor
+from statsmodels.stats.outliers_influence import variance_inflation_factor, OLSInfluence
 from statsmodels.compat import lzip
 from statsmodels.stats.diagnostic import het_breuschpagan
 from scipy.stats import jarque_bera, shapiro
 from statsmodels.graphics.gofplots import qqplot
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 import matplotlib.pyplot as plt
 
 # Function to calculate Variance Inflation Factor (VIF)
@@ -37,6 +38,10 @@ def test_linear_regression_assumptions(df, target_column, independent_columns):
 
     # Fit the model
     model = sm.OLS(y, X).fit()
+
+    # Extract fitted values and residuals
+    fittedvalues = model.fittedvalues
+    residuals = model.resid
 
     # Breusch-Pagan Test for Homoscedasticity
     bp_test = het_breuschpagan(model.resid, model.model.exog)
@@ -85,7 +90,7 @@ def test_linear_regression_assumptions(df, target_column, independent_columns):
     st.header("Variance Inflation Factor (VIF)")
     st.write(vif_data)
 
-   # Linearity
+    # Linearity
     st.subheader("Linearity Check")
     fig, ax = plt.subplots()
     ax.scatter(fittedvalues, residuals)
