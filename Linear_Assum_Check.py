@@ -3,9 +3,9 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import statsmodels.stats.api as sms
-import statsmodels.stats.stattools as stattools
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.compat import lzip
-from statsmodels.stats.diagnostic import het_breuschpagan, normal_ad
+from statsmodels.stats.diagnostic import het_breuschpagan
 from scipy.stats import jarque_bera, shapiro
 from statsmodels.graphics.gofplots import qqplot
 import matplotlib.pyplot as plt
@@ -19,7 +19,7 @@ def calculate_vif(X):
         
         vif_data = pd.DataFrame()
         vif_data["Variable"] = X.columns
-        vif_data["VIF"] = [stattools.variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+        vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
         vif_data = vif_data[vif_data["Variable"] != 'const']
         return vif_data
     except Exception as e:
