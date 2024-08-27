@@ -166,7 +166,7 @@ def test_linear_regression_assumptions(df, target_column, independent_columns):
     plt.tight_layout()
     st.pyplot(plt)
 
-    def plot_outliers(fittedvalues, residuals):
+def plot_outliers(fittedvalues, residuals):
     # Calculate mean and standard deviation of residuals
     mean_residuals = np.mean(residuals)
     std_residuals = np.std(residuals)
