@@ -85,14 +85,59 @@ def test_linear_regression_assumptions(df, target_column, independent_columns):
     st.header("Variance Inflation Factor (VIF)")
     st.write(vif_data)
 
-    # Plotting QQ Plot
-    st.header("QQ Plot for Normality Check")
-    qqplot_data = qqplot(model.resid, line='s').gca().lines
-    plt.title('QQ Plot')
-    plt.xlabel('Theoretical Quantiles')
-    plt.ylabel('Standardized Residuals')
-    st.pyplot(plt)
+   # Linearity
+    st.subheader("Linearity Check")
+    fig, ax = plt.subplots()
+    ax.scatter(fittedvalues, residuals)
+    ax.axhline(y=0, color='r', linestyle='--')
+    ax.set_xlabel('Fitted Values')
+    ax.set_ylabel('Residuals')
+    ax.set_title('Linearity Check')
+    st.pyplot(fig)
 
+    # Scale-Location Plot
+    standardized_residuals = (residuals - np.mean(residuals)) / np.std(residuals)
+    st.subheader("Scale-Location Plot")
+    fig, ax = plt.subplots()
+    ax.scatter(fittedvalues, np.sqrt(np.abs(standardized_residuals)))
+    ax.axhline(y=0, color='r', linestyle='--')
+    ax.set_xlabel('Fitted Values')
+    ax.set_ylabel('Sqrt(Abs(Standardized Residuals))')
+    ax.set_title('Scale-Location Plot')
+    st.pyplot(fig)
+
+    # Independence of Residuals
+    st.subheader("Autocorrelation of Residuals")
+    fig, ax = plt.subplots()
+    plot_acf(residuals, lags=40, ax=ax)
+    ax.set_title('Autocorrelation of Residuals')
+    st.pyplot(fig)
+
+    # Normality of Residuals
+    st.subheader("QQ Plot of Residuals")
+    fig, ax = plt.subplots()
+    qqplot(residuals, line='s', ax=ax)
+    ax.set_title('QQ Plot of Residuals')
+    st.pyplot(fig)
+
+    # Partial Autocorrelation of Residuals
+    st.subheader("Partial Autocorrelation of Residuals")
+    fig, ax = plt.subplots()
+    plot_pacf(residuals, lags=40, ax=ax)
+    ax.set_title('Partial Autocorrelation of Residuals')
+    st.pyplot(fig)
+
+    # Influence Plot
+    st.subheader("Cook's Distance")
+    fig, ax = plt.subplots()
+    influence = OLSInfluence(model)
+    ax.scatter(influence.hat_matrix_diag, influence.cooks_distance[0])
+    ax.axhline(y=4 / len(residuals), color='r', linestyle='--')
+    ax.set_xlabel('Leverage')
+    ax.set_ylabel("Cook's Distance")
+    ax.set_title("Cook's Distance")
+    st.pyplot(fig)
+    
 # Streamlit app
 def main():
     st.title("Linear Regression Assumptions Checker")
