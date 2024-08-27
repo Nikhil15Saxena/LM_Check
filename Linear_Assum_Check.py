@@ -22,7 +22,11 @@ def calculate_vif(X):
         vif_data = pd.DataFrame()
         vif_data["Variable"] = X.columns
         vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
+        
+        # Filter out infinite VIFs
+        vif_data = vif_data.replace([np.inf, -np.inf], np.nan).dropna()
         vif_data = vif_data[vif_data["Variable"] != 'const']
+        
         return vif_data
     except Exception as e:
         st.error(f"An error occurred during VIF calculation: {e}")
