@@ -233,10 +233,10 @@ def main():
             - Email: [Nikhil.Saxena@lilly.com](mailto:Nikhil.Saxena@lilly.com)
                 
             **Features:**
-            - Upload and filter datasets
-            - Perform factor analysis with customizable settings
-            - Train and evaluate a Random Forest classifier with optional hyperparameter tuning
-            - Visualize results with ROC curves and feature importance
+            - Upload datasets and select the dependent and independent variables
+            - The app will automatically run a linear model on the data
+            - Check whether all assumptions are met for the linear regression model to be valid
+            - Visualize the results with various diagnostic plots
                 
             ---
             """, unsafe_allow_html=True)
