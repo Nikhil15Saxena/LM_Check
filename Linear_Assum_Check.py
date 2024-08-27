@@ -23,15 +23,15 @@ def calculate_vif(X):
         vif_data["Variable"] = X.columns
         vif_data["VIF"] = [variance_inflation_factor(X.values, i) for i in range(X.shape[1])]
         
-        # Filter out infinite VIFs
-        vif_data = vif_data.replace([np.inf, -np.inf], np.nan).dropna()
+        # Identify and mark infinite VIFs
+        vif_data["VIF"] = vif_data["VIF"].apply(lambda x: 'Perfectly Multicollinear' if np.isinf(x) else x)
         vif_data = vif_data[vif_data["Variable"] != 'const']
         
         return vif_data
     except Exception as e:
         st.error(f"An error occurred during VIF calculation: {e}")
         return pd.DataFrame()
-
+        
 # Function to test linear regression assumptions
 def test_linear_regression_assumptions(df, target_column, independent_columns):
     X = df[independent_columns]
